@@ -1,0 +1,22 @@
+# Environment
+.env
+
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Output files
+segments/
+*.mp4
+*.m4v
+*.m4s
+*.m3u8
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
