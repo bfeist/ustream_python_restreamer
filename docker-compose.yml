@@ -1,0 +1,23 @@
+version: "3.8"
+
+services:
+  ums-grid-splitter:
+    build: .
+    container_name: ums-grid-splitter
+    restart: unless-stopped
+    environment:
+      - CHANNEL_ID=${CHANNEL_ID}
+      - STREAM_PASSWORD=${STREAM_PASSWORD}
+      - MEDIAMTX_SERVER=${MEDIAMTX_SERVER}
+      - USE_NVENC=${USE_NVENC:-0}
+    volumes:
+      - ./segments:/app/segments
+    network_mode: host
+    # NVIDIA GPU support for NVENC
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]

@@ -15,8 +15,13 @@ import asyncio
 import argparse
 import subprocess
 import sys
+import os
 from pathlib import Path
+from dotenv import load_dotenv
 from ums_client import UMSClient
+
+# Load environment variables
+load_dotenv()
 
 # Grid configuration for 720p source (1280x720)
 # Each cell is approximately 426x240 pixels
@@ -289,16 +294,32 @@ Examples:
 
     # With NVIDIA hardware encoding
     python ums_grid_splitter.py uVXuBCKCRhy --nvenc
+
+    # Using environment variables (via .env file)
+    # Set CHANNEL_ID, STREAM_PASSWORD, MEDIAMTX_SERVER, USE_NVENC in .env
+    python ums_grid_splitter.py
         """
     )
-    parser.add_argument('channel_id', help='UMS Channel ID (e.g., uVXuBCKCRhy)')
-    parser.add_argument('-p', '--password', help='Stream password (if required)')
-    parser.add_argument('--server', default='localhost:8554',
-                        help='MediaMTX server address (default: localhost:8554)')
-    parser.add_argument('--nvenc', action='store_true',
-                        help='Use NVIDIA hardware encoding (requires NVIDIA GPU)')
+    parser.add_argument('channel_id', nargs='?', 
+                        default=os.getenv('CHANNEL_ID'),
+                        help='UMS Channel ID (e.g., uVXuBCKCRhy) - can be set via CHANNEL_ID env var')
+    parser.add_argument('-p', '--password', 
+                        default=os.getenv('STREAM_PASSWORD'),
+                        help='Stream password (if required) - can be set via STREAM_PASSWORD env var')
+    parser.add_argument('--server', 
+                        default=os.getenv('MEDIAMTX_SERVER', 'localhost:8554'),
+                        help='MediaMTX server address (default: localhost:8554) - can be set via MEDIAMTX_SERVER env var')
+    parser.add_argument('--nvenc', 
+                        action='store_true',
+                        default=os.getenv('USE_NVENC', '0') == '1',
+                        help='Use NVIDIA hardware encoding (requires NVIDIA GPU) - can be set via USE_NVENC env var')
     
     args = parser.parse_args()
+    
+    # Validate required arguments
+    if not args.channel_id:
+        parser.error('channel_id is required (provide as argument or set CHANNEL_ID environment variable)')
+    
     asyncio.run(run_grid_splitter(args))
 
 
